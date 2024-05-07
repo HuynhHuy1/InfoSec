@@ -1,0 +1,51 @@
+version: '3'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: project_app
+    restart: always
+    tty: true
+    working_dir: /var/www/html
+    volumes:
+      - './:/var/www/html'
+    environment:
+      DB_HOST: database
+      DB_DATABASE: WEBSOCIAL    # Thay đổi tên cơ sở dữ liệu
+      DB_USERNAME: root
+      DB_PASSWORD: root         # Thay đổi mật khẩu cơ sở dữ liệu
+  webserver:
+    image: nginx
+    container_name: project_webserver
+    restart: always
+    tty: true
+    ports:
+      - '9000:80'
+    volumes:
+      - './:/var/www/html'
+      - './nginx/conf.d/:/etc/nginx/conf.d/'
+  database:
+    image: 'mysql:8.0'
+    container_name: database
+    restart: always
+    volumes:
+      - /Users/mac/Downloads/instagram-clone-main-2/WEBSOCIAL.sql:/docker-entrypoint-initdb.d/WEBSOCIAL.sql
+    environment:
+      MYSQL_DATABASE: WEBSOCIAL   # Thay đổi tên cơ sở dữ liệu
+      MYSQL_ROOT_PASSWORD: root    # Thay đổi mật khẩu cơ sở dữ liệu
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    tty: true
+    depends_on:
+      - database
+    ports:
+      - '9001:80'
+    environment:
+      PMA_HOST: database
+      PMA_USER: root
+      PMA_PASSWORD: root
+      UPLOAD_LIMIT: 300M
+volumes:
+  db_data:
